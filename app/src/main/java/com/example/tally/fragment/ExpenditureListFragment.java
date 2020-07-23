@@ -1,6 +1,7 @@
 package com.example.tally.fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,8 +44,20 @@ public class ExpenditureListFragment extends Fragment implements AdapterView.OnI
 
     }
 
+    //自动刷新
     public void autoRreshLayout(){
         mRefreshLayout.autoRefresh();
+    }
+
+    //开始刷新
+    public void startRefresh(){
+        Log.d("ExpenditureListFragment","开始刷新");
+        mRefreshLayout.autoRefreshAnimationOnly();
+    }
+
+    //结束刷新
+    public void endRefresh(){
+        mRefreshLayout.finishRefresh();
     }
 
     private enum Item {
@@ -60,6 +73,7 @@ public class ExpenditureListFragment extends Fragment implements AdapterView.OnI
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        Log.d("ExpenditureListFragment","视图创建");
         super.onViewCreated(view, savedInstanceState);
         mRecyclerView = view.findViewById(R.id.expe_list_rv);
         mRefreshLayout = view.findViewById(R.id.refreshLayout);
@@ -67,6 +81,7 @@ public class ExpenditureListFragment extends Fragment implements AdapterView.OnI
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), VERTICAL));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         //设置mRecyclerView内容
+
         List<Item> items = new ArrayList<>();
         items.addAll(Arrays.asList(Item.values()));
         mRecyclerView.setAdapter(mAdpater = new BaseRecyclerAdapter<Item>(items, simple_list_item_2,this) {
@@ -82,7 +97,7 @@ public class ExpenditureListFragment extends Fragment implements AdapterView.OnI
         if (isFirstEnter) {
             isFirstEnter = false;
             //触发自动刷新
-            mRefreshLayout.autoRefresh();
+            this.startRefresh();
         }
     }
 

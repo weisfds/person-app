@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.room.Room;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.example.tally.AppDatabase;
 import com.example.tally.bean.Expenditure;
@@ -17,6 +19,15 @@ public class TallyThread implements Runnable {
 
     private Expenditure expenditure;
     private Context context;
+    private Migration MIGRATION_1_2;
+    {
+        MIGRATION_1_2 = new Migration(1, 2) {
+            @Override
+            public void migrate(SupportSQLiteDatabase database) {
+//                database.execSQL("ALTER TABLE expenditure ");
+            }
+        };
+    }
 
     public TallyThread(Expenditure expenditure,Context context) {
         this.expenditure = expenditure;
@@ -27,7 +38,10 @@ public class TallyThread implements Runnable {
     public void run() {
         Log.d("TallyThread","insert data");
         AppDatabase db = Room.databaseBuilder(context,
-                AppDatabase.class, "expenditure").build();
+                AppDatabase.class, "expenditure")
+                .allowMainThreadQueries()
+                .addMigrations(MIGRATION_1_2)
+                .build();
         db.expenditureDao().insert(expenditure);
         db.close();
     }
